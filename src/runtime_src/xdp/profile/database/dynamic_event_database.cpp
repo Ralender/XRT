@@ -222,9 +222,13 @@ namespace xdp {
     std::lock_guard<std::mutex> lock(hostEventsLock) ;
     std::vector<std::unique_ptr<VTFEvent>> collected ;
 
-    for (auto it=hostEvents.begin(); it!=hostEvents.end(); it++) {
+    for (auto it=hostEvents.begin(); it!=hostEvents.end();) {
       if (filter(it->second)) collected.emplace_back(it->second);
-      hostEvents.erase(it);
+      auto old = it;
+      it++;
+      // after erase all iterator pointing to the erased element are
+      // invalidated.
+      hostEvents.erase(old);
     }
     return collected ;
   }
